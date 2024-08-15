@@ -9,5 +9,8 @@
   "dependencies": {
     "chalk": "4",
     "prompts": "^2.4.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
