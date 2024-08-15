@@ -1,6 +1,10 @@
-const domainName = "xabc.myshopify.com"
-const secretToken = "shpat_abcdefghijklmnopqrstuvwxyz1234567890"
-const saveFileName = 'temp.json'
+require('dotenv').config()
+
+
+const domainName = process.env.SHOPIFY_DOMAIN
+const secretToken = process.env.SECRET_TOKEN
+const saveFileName = process.env.DATA_FILE_PATH
+const apiVersion = process.env.API_VERSION
 
 const textToRemoveInDescription = `<span itemtype="http://schema.org/Review" itemscope="" itemprop="Review"><span itemtype="http://schema.org/Rating" itemscope="" itemprop="reviewRating"></span><span itemtype="https://schema.org/Person" itemscope="" itemprop="author"></span></span> <span itemtype="http://schema.org/AggregateRating" itemscope="" itemprop="aggregateRating"></span>`;
 
@@ -119,7 +123,7 @@ async function removeAllNoindexProducts(domainName, secretToken) {
             const shortId = metafieldId.split('/').pop();
 
             const res = await fetch(
-                `https://${domainName}/admin/api/2024-04/metafields/${shortId}.json`,
+                `https://${domainName}/admin/api/${apiVersion}/metafields/${shortId}.json`,
                 {
                     method: "DELETE",
                     headers: {
@@ -148,7 +152,7 @@ async function removeAllNoindexProducts(domainName, secretToken) {
 }
 
 async function removeEmptySchemaInProductDescription(domainName, secretToken) {
-    var graphqlEndpoint = `https://${domainName}/admin/api/2024-07/graphql.json`
+    var graphqlEndpoint = `https://${domainName}/admin/api/${apiVersion}/graphql.json`
 
     var lastCursor = null;
     var hasNextPage = true;
@@ -208,7 +212,6 @@ async function removeEmptySchemaInProductDescription(domainName, secretToken) {
             const productId = product.node.id;
             const newDescription = product.node.descriptionHtml.replace(textToRemoveInDescription, '');
             console.log(chalk.blue("New description:"), productId, newDescription);
-            return
             const updateQuery = `mutation {
   productUpdate(input: {id: "${productId}", descriptionHtml: "${newDescription}" }) {
     product {
